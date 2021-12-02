@@ -1,3 +1,8 @@
+-- The first part of Day 2
+-- Each instruction can be encoded as a position delta:
+--  forward 5 -> Pos 5 0
+--  down 5    -> Pos 0 5
+-- and then summed to reach a final Pos 5 5.
 data Position = Pos Int -- Horizontal
                     Int -- Depth
                 deriving Show
@@ -13,7 +18,8 @@ parseFile :: FilePath -> IO [Position]
 parseFile fp = do
     f <- fmap lines (readFile fp)
     return $ map (parseLine . words) f
-    
+
+-- No pretty parser today either!
 parseLine :: [String] -> Position
 parseLine ["forward", n] = Pos (read n) 0
 parseLine ["down", n] = Pos 0 (read n)

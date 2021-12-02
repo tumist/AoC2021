@@ -1,3 +1,7 @@
+-- For the second part, a state called Aim is introduced and therefor
+-- we can't treat each instruction as a delta position any more.
+-- The state has been separated in to Position
+-- and instructions get their own Instruction data type.
 data Position = Pos Int -- Horizontal
                     Int -- Depth
                     Int -- Aim
@@ -8,6 +12,9 @@ data Instruction
     | Up Int
     | Down Int
 
+-- Now the sum function takes Instructions and gives a final Position.
+-- This makes the folding function a bit more complicated, but at least
+-- it's not so complicated to reach for a State monad.
 sumInstruction :: [Instruction] -> Position
 sumInstruction = foldl plusInstr (Pos 0 0 0)
   where
