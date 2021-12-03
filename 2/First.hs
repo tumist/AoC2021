@@ -12,6 +12,7 @@ sumPos = foldl plusPos (Pos 0 0)
   where
     plusPos (Pos h d) (Pos h' d') = Pos (h+h') (d+d')
 
+mulPos :: Position -> Int
 mulPos (Pos h d) = h * d
 
 parseFile :: FilePath -> IO [Position]
