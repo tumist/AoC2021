@@ -1,6 +1,8 @@
+{-# LANGUAGE TupleSections #-}
 import Text.ParserCombinators.ReadP
 import qualified Data.Map.Strict as Map
 import Control.Monad (forM_)
+import Data.List (sort)
 
 type Point = (Int, Int)
 x :: (x, y) -> x
@@ -11,19 +13,21 @@ type Line = (Point, Point)
 
 -- Get every Point of a Line
 linePoints :: Line -> [Point]
-linePoints l = linePoints' [fst l] (snd l)
-linePoints' :: [Point] -> Point -> [Point]
-linePoints' [] _ = error "This doesn't happen if called through linePoints"
-linePoints' pts@(p1:rest) dest
-  | p1 == dest = pts
-  | otherwise = let dx = x dest `direction` x p1
-                    dy = y dest `direction` y p1
-                in linePoints' ((x p1 + dx, y p1 + dy):pts) dest
+linePoints l = linePoints' [startPoint] endPoint (dx, dy)
   where
+    startPoint = fst l
+    endPoint = snd l
+    dx = x endPoint `direction` x startPoint
+    dy = y endPoint `direction` y startPoint
     direction a b
       | a > b = 1
       | a < b = -1
       | otherwise = 0
+linePoints' :: [Point] -> Point -> Point -> [Point]
+linePoints' [] _ _ = error "This doesn't happen if called through linePoints"
+linePoints' pts@(p1:rest) dest (dx, dy)
+  | p1 == dest = pts
+  | otherwise = linePoints' ((x p1 + dx, y p1 + dy):pts) dest (dx, dy)
 
 -- Input parser
 sepTuple :: ReadP a -> ReadP sep -> ReadP (a,a)
@@ -37,15 +41,13 @@ parsePoint = sepTuple readInt (char ',')
   where readInt = readS_to_P reads :: ReadP Int
 
 -- Create a map counting every occurance of a Point
+-- Sorting the line points and using fromAscListWith is considerably
+-- faster than using fromListwith
 mkMap :: [Line] -> Map.Map Point Int
-mkMap lines = 
-  let points = concatMap linePoints lines
-  in foldr (\key map -> Map.insertWith (+) key 1 map) Map.empty points
+mkMap = Map.fromAscListWith (+) . map (, 1) . sort . concatMap linePoints
 
 solve :: [Line] -> Int
-solve lines =
-  let map = mkMap lines
-  in Map.size $ Map.filter (> 1) map
+solve = Map.size . Map.filter (> 1) . mkMap
 
 -- For debugging
 printMap :: Map.Map Point Int -> IO ()
