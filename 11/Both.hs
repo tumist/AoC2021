@@ -51,12 +51,10 @@ flash :: EnergyLevels -> [Coord]
 flash = Map.keys . Map.filter (> 9)
 
 -- Apply one round of flashing
-applyFlash :: EnergyLevels 
+applyFlash :: EnergyLevels
            -> (EnergyLevels -- Resulting EnergyLevels 
               , Int)        -- Total number of flashes
-applyFlash el =
-    let (el', flashes) = applyFlash' (el, [])
-    in (el', length flashes)
+applyFlash el = length <$> applyFlash' (el, [])
 
 applyFlash' :: (EnergyLevels, [Coord]) -> (EnergyLevels, [Coord])
 applyFlash' (el, alreadyFlashed) =
@@ -64,7 +62,7 @@ applyFlash' (el, alreadyFlashed) =
         adjacent = concatMap adjacents flashing
         energized = foldr (Map.adjust (+1)) el adjacent
         zeroed = foldr (Map.adjust (const 0)) energized (alreadyFlashed ++ flashing)
-    in 
+    in
         -- If no octopuses flashed in this round, the step is complete
         if null flashing then
             (zeroed, alreadyFlashed)
@@ -80,9 +78,7 @@ steps :: EnergyLevels -> Int -> (EnergyLevels, Int)
 steps el n = foldr sumStep (el, 0) [1..n]
     where
         sumStep :: Int -> (EnergyLevels, Int) -> (EnergyLevels, Int)
-        sumStep _ (el, acc) =
-            let (el', flashed) = step el
-            in (el', acc + flashed)
+        sumStep _ (el, acc) = (+) acc <$> step el
 
 -- Part 2: find the step causing all octopus to flash
 solve2 :: EnergyLevels -> Int
@@ -97,6 +93,6 @@ main = do
     [(input, "")] <- readP_to_S parseFile <$> readFile "input"
     print $ snd (steps testInput2 100)
     print $ snd (steps input 100)
-    
+
     print $ solve2 testInput2
     print $ solve2 input
