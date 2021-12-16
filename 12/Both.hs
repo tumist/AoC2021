@@ -28,6 +28,7 @@ parseLine = do
 isSmall :: Cave -> Bool
 isSmall = isAsciiLower . head
 
+
 data Path = Path { path :: [Cave]
                  , visitedSmall :: Set.Set Cave
                  , visitedSmallTwice :: Bool } deriving Show
@@ -36,7 +37,7 @@ startPath :: Path
 startPath = Path ["start"] Set.empty False
 
 -- Rule for part 1
--- Given current Path, may sant go to Cave?
+-- Given current Path, may Santa go to Cave?
 smallCaveOnce :: Path -> Cave -> Maybe Path
 smallCaveOnce _ "start" = Nothing
 smallCaveOnce p@(Path path visitedSmall _) edge =
